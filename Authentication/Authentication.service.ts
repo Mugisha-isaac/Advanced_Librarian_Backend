@@ -22,7 +22,7 @@ class AuthenticationService{
 
         const tokenData = this.createToken(admin);
         const cookie = this.createCookie(tokenData)
-        return {admin}
+        return {admin, cookie}
     }
 
 

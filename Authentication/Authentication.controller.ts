@@ -22,15 +22,22 @@ class AuthenticationController{
     private admin = Admin;
 
 
+   constructor(){
+       this.initializeRoutes();
+   }
+
 
     private initializeRoutes(){
         this.router.post(`${this.path}/register`, ValidationMiddleware(CreateAdminDto), this.registration);
+        this.router.post(`${this.path}/login`, ValidationMiddleware(LoginDTO), this.LogIn);
+        this.router.post(`${this.path}/logout`, this.Logout);
     }
 
     private registration = async(request:Request,response:Response,next:NextFunction) =>{
       const adminData:CreateAdminDto = request.body;
       try{
-            const {admin} = await this.authenticationService.register(adminData);
+            const {admin,cookie} = await this.authenticationService.register(adminData);
+            response.setHeader('Set-Cookie', [cookie])
             response.send(admin);
       }
       catch(error){
@@ -45,6 +52,7 @@ class AuthenticationController{
             const isPasswordIsMatching = await bcrypt.compare(LoginData.password,admin.get('password',null,{getters:false}));
             if(isPasswordIsMatching){
                 const tokenData = this.CreateToken(admin);  
+                response.setHeader('Set-Cookie',[this.CreateCookie(tokenData)]);
                 response.send(admin);
             }
             else{
@@ -57,9 +65,10 @@ class AuthenticationController{
     }
      
 
-    // private Logout = async(request:Request, response:Response)=>{
-       
-    // }
+    private Logout = async(request:Request, response:Response)=>{
+        response.setHeader('Set-Cookie', ['Authorisation=;Max-Age=0']);
+        response.send(200);
+    }
 
     private CreateToken(admin:IAdmin):TokenData{
         const expiresIn = 60*60;
@@ -72,6 +81,10 @@ class AuthenticationController{
             expiresIn,
             token:jwt.sign(dataStoredInToken,secret,{expiresIn})
         }
+    }
+
+    private CreateCookie(tokenData:TokenData){
+        return `Authorisation ${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
     }
 }
 
