@@ -20,7 +20,7 @@ const authMiddleware = async(req:RequestWithAdmin,res:Response,next:NextFunction
              if(admin){
                  req.admin = admin;
                  next();
-             }
+             }  
              next( new WrongAuthenticationTokenException());
          }
          catch(error){
