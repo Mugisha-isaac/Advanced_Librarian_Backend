@@ -1,6 +1,6 @@
 
-import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import  bcrypt from 'bcrypt';
+import  jwt from 'jsonwebtoken';
 import AdminWithUsernameExists from '../Exceptions/AdminWithUsernameExistsException';
 import DataStoredInToken from '../interfaces/dataStoredInToken';
 import TokenData from '../interfaces/tokenData.interface';
@@ -33,14 +33,14 @@ class AuthenticationService{
 
     public createToken(admin:IAdmin):TokenData  {
         const expiresIn = 60*60;
-        const secret = process.env.Jwt_Secret;
+        const secret = process.env.Secret;
         const dataStoredInToken:DataStoredInToken = {
             _id:admin._id,  
         };
 
         return{
             expiresIn,
-            token:jwt.sign(dataStoredInToken,secret,{expiresIn})
+            token:jwt.sign(dataStoredInToken,"swsh23hjddnns",{expiresIn})
         }
     }
 }

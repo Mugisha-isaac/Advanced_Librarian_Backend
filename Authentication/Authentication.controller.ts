@@ -1,7 +1,7 @@
 
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { Request,Response,NextFunction, Router } from 'express';
-import * as jwt from 'jsonwebtoken';
+import  jwt from 'jsonwebtoken';
 import WrongCredentialsException from '../Exceptions/WrongCredentialsException';
 import Controller from '../interfaces/controller.interface';
 import DataStoredInToken from '../interfaces/dataStoredInToken';
@@ -72,7 +72,7 @@ class AuthenticationController{
 
     private CreateToken(admin:IAdmin):TokenData{
         const expiresIn = 60*60;
-        const secret = process.env.Jwt_Secret;
+        const secret = process.env.Secret;
         const dataStoredInToken:DataStoredInToken = {
             _id:admin._id
         };

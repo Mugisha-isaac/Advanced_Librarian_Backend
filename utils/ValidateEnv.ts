@@ -2,7 +2,7 @@
 
   const ValidateEnv = ()=>{
         cleanEnv(process.env,{
-            Jwt_Secret:str(),
+            Secret:str(),
             PORT:port(),
             MONGO_USER:str(),
             MONGO_PASSWORD:str(),

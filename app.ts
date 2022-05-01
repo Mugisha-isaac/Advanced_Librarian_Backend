@@ -1,7 +1,7 @@
-import * as bodyParser from 'body-parser';
+import  bodyParser from 'body-parser';
 import { urlencoded } from 'body-parser';
-import * as express from 'express';
-import * as mongoose from 'mongoose';
+import  express from 'express';
+import  mongoose from 'mongoose';
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 
@@ -11,6 +11,10 @@ class App{
 
     constructor(controllers:Controller[]){
         this.app = express();
+        this.connectToDatabase();
+        this.initializeControllers(controllers);
+        this.initializeMiddlewares();
+        this.initializeErrorHandling();
     }
 
     public Listen(){
@@ -44,7 +48,13 @@ class App{
             MONGO_PATH
         } = process.env;
 
-        mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`);
+        mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}/${MONGO_PATH}`)
+        .then(()=>{
+            console.log('Database is up running...');
+        })
+        .catch((err)=>{
+            console.log('Failed to connect to database',err);
+        })
     }
 }
 
