@@ -40,3 +40,19 @@
 
 import 'dotenv/config';
 import App from './app';
+import AuthenticationController from './Authentication/Authentication.controller';
+import UserController from './controllers/user.controller';
+import AdminController from './controllers/admin.controller';
+import ValidateEnv from './utils/ValidateEnv';
+
+
+ValidateEnv();
+
+const app = new App(
+    [
+        new UserController(),
+        new AdminController()
+    ]
+)
+
+app.Listen();   
