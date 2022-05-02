@@ -1,5 +1,4 @@
-import  bodyParser from 'body-parser';
-import { urlencoded } from 'body-parser';
+import * as bodyParser from 'body-parser';
 import  express from 'express';
 import  mongoose from 'mongoose';
 import Controller from './interfaces/controller.interface';
@@ -12,8 +11,8 @@ class App{
     constructor(controllers:Controller[]){
         this.app = express();
         this.connectToDatabase();
-        this.initializeControllers(controllers);
         this.initializeMiddlewares();
+        this.initializeControllers(controllers);
         this.initializeErrorHandling();
     }
 
@@ -28,6 +27,7 @@ class App{
     }
 
     private initializeMiddlewares(){
+        this.app.use(bodyParser.urlencoded({extended:false}));
         this.app.use(bodyParser.json());
     }
 
