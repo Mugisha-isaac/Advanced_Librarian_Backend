@@ -28,8 +28,8 @@ class AuthenticationController{
 
 
     private initializeRoutes(){
-        this.router.post(`${this.path}/register`, ValidationMiddleware(CreateAdminDto), this.registration);
-        this.router.post(`${this.path}/login`, ValidationMiddleware(LoginDTO), this.LogIn);
+        this.router.post(`${this.path}/register`, this.registration);
+        this.router.post(`${this.path}/login`,  this.LogIn);
         this.router.post(`${this.path}/logout`, this.Logout);
     }
 
@@ -51,9 +51,18 @@ class AuthenticationController{
         if(admin){
             const isPasswordIsMatching = await bcrypt.compare(LoginData.password,admin.get('password',null,{getters:false}));
             if(isPasswordIsMatching){
-                const tokenData = this.CreateToken(admin);  
-                response.setHeader('Set-Cookie',[this.CreateCookie(tokenData)]);
-                response.send(admin);
+                const id = admin._id;
+                let payload = {id};
+                let accessToken = jwt.sign(payload,"swsh23hjddnns",{
+                    algorithm: "HS256",
+                    expiresIn:86400
+                });
+
+                response.cookie('jwt',accessToken,{secure:true,httpOnly:true});
+                return response.status(200).send({
+                    token: accessToken,
+                    message: 'Successful Login'
+                })
             }
             else{
                 next(new WrongCredentialsException());
@@ -72,7 +81,7 @@ class AuthenticationController{
 
     private CreateToken(admin:IAdmin):TokenData{
         const expiresIn = 60*60;
-        const secret = process.env.Secret;
+        const secret ="swsh23hjddnns";
         const dataStoredInToken:DataStoredInToken = {
             _id:admin._id
         };

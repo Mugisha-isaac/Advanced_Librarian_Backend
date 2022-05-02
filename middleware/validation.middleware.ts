@@ -5,20 +5,19 @@ import {RequestHandler} from 'express';
 import HttpException from '../Exceptions/HttpException';
 
 
-function ValidationMiddleware<T>(type:any, skipMissingProperties=false):RequestHandler{
-        return (req,res,next) =>{
-            validate(plainToClass(type,req.body), {skipMissingProperties})
-            .then((errors:ValidationError[])=>{
-                if(errors.length > 0){
-                    const message = errors.map((error:ValidationError)=>Object.values(error.constraints)).join(', ');
-                    next(new HttpException(400,message))
-                }
-                else{
-                    next()
-                }
-            })
-        }
-}
+function validationMiddleware<T>(type: any, skipMissingProperties = false):RequestHandler {
+    return (req, res, next) => {
+      validate(plainToClass(type, req.body), { skipMissingProperties })
+        .then((errors: ValidationError[]) => {
+          if (errors.length > 0) {
+            const message = errors.map((error: any) => Object.values(error.constraints)).join(', ');
+            next(new HttpException(400, message));
+          } else {
+            next();
+          }
+        });
+    };
+  }
 
 
-export default ValidationMiddleware;
+export default validationMiddleware;

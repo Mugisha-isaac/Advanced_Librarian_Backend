@@ -12,9 +12,9 @@ const adminSchema = new schema({
         required:true
     },
     isAdmin:{
-        type:String,
+        type:Boolean,
         required:true,
-        default:"admin"
+        default:false
     }
 }, {timestamps:true})
 

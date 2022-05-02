@@ -3,6 +3,7 @@ import  express from 'express';
 import  mongoose from 'mongoose';
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
+import  cors from 'cors';
 
 
 class App{
@@ -29,6 +30,7 @@ class App{
     private initializeMiddlewares(){
         this.app.use(bodyParser.urlencoded({extended:false}));
         this.app.use(bodyParser.json());
+        this.app.use(cors())
     }
 
     private initializeErrorHandling(){

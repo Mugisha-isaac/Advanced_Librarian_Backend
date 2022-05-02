@@ -1,26 +1,56 @@
-import express from 'express';
-import BorrowedBookServices from '../services/borroweBook.services';
 
 
-class BorrowedBookContoller{
-    async createBookController(req:express.Request, res: express.Response){
-        const book = await BorrowedBookServices.createBook(req.body.isbn,req.body.name,req.body.borrower,req.body.borrowedDate,req.body.status);
-        if(book) return res.status(201).send({success:true,message:'Book saved successfully',data:book});
-        return res.status(400).send({success:false,message:'Failed to save new book'});
+import {Request,Response,NextFunction, Router} from 'express';
+import NotAuthorisedTokenException from '../Exceptions/NotAuthorisedException';
+import Controller from '../interfaces/controller.interface';
+import RequestWithAdmin from '../interfaces/requestWithAdmin';
+import authMiddleware from '../middleware/auth.middleware';
+import BorrowedBook from '../model/borrowedBook.model';
+import BooksNotFoundException from '../Exceptions/ItemsNotFoundException';
+import BookNotFoundException from '../Exceptions/ItemNotFoundException'
+import SavingNewBookFailedException from '../Exceptions/SavingNewItemFailedException';
+
+class BorrowedBookController{
+    public path ='/Borrowedbook';
+    public router = Router();
+    private bBook = BorrowedBook;
+
+    constructor(){
+      this.initialiseRoutes();  
     }
 
-    async getBooksController(req:express.Request, res:express.Response){
-        const books = await BorrowedBookServices.getAllBooks();
-        if(books) return res.status(200).send(books);
-        return res.status(404).send({success:false,message:'Not Found', data:books});
+    private initialiseRoutes(){
+    
+        this.router.get(`${this.path}/`, this.getAllBorrowedBooks);
+        this.router.get(`${this.path}/:id`, authMiddleware, this.getBorrowedBookById);
+        this.router.post(`${this.path}/register`, this.createNewBBook)
     }
 
-    async deleteBookController(req:express.Request, res:express.Response){
-        const book = await BorrowedBookServices.deleteBook(req.params.id);
-        if(book) return res.status(200).send({success:true,message:'Book deleted successfully',data:book});
-        return res.status(400).send({success:false,message:'Failed to delete book', data:book});
+    private getAllBorrowedBooks =async(_:Request,response:Response, next:NextFunction)=>{
+        const books = await this.bBook.find();
+        if(books) return response.status(200).send(books);
+        next(new BooksNotFoundException('users'));
+    }
+
+    private getBorrowedBookById = async(request:Request, response:Response, next:NextFunction)=>{
+         const id = request.params.id;
+         const book = await this.bBook.findById(id);
+         if(book) return response.status(200).send(book);
+         next(new BookNotFoundException('book', id));
+    }
+
+    private createNewBBook = async(request:Request,response:Response, next:NextFunction) =>{
+         const newBBook = await this.bBook.create({
+            isbn: request.body.isbn,
+            name:request.body.name,
+            borrower: request.body.borrower,
+            borrowedDate: request.body.borrowedDate,
+            status: request.body.status
+         });
+
+         if(newBBook) return response.status(201).send(newBBook);
+         next(new SavingNewBookFailedException('book'));
     }
 }
 
-
-export default new BorrowedBookContoller;
+export default BorrowedBookController;
